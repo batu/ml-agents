@@ -6,6 +6,9 @@ namespace MLAgentsExamples
 {
     public class AdjustTrainingTimescale : MonoBehaviour
     {
+        void Start(){
+            Time.timeScale = 20f;
+        }
         // Update is called once per frame
         void Update()
         {

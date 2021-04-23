@@ -421,6 +421,12 @@ class ActionSpec(NamedTuple):
             if n_agents is not None
             else (self.continuous_size,)
         )
+        if n_agents == 0:
+            # print(f"Passed an empty action in _validate_action in base_env.py in mlagents_envs.")
+            _continuous = np.zeros((n_agents, self.continuous_size), dtype=np.float32)
+            _discrete = np.zeros((n_agents, self.discrete_size), dtype=np.int32)
+            actions = ActionTuple(continuous=_continuous, discrete=_discrete)
+        
         if actions.continuous.shape != _expected_shape:
             raise UnityActionException(
                 f"The behavior {name} needs a continuous input of dimension "
