@@ -416,7 +416,21 @@ class ActionSpec(NamedTuple):
         Validates that action has the correct action dim
         for the correct number of agents and ensures the type.
         """
+<<<<<<< HEAD
         _expected_shape = (n_agents, self.continuous_size)
+=======
+        _expected_shape = (
+            (n_agents, self.continuous_size)
+            if n_agents is not None
+            else (self.continuous_size,)
+        )
+        if n_agents == 0:
+            # print(f"Passed an empty action in _validate_action in base_env.py in mlagents_envs.")
+            _continuous = np.zeros((n_agents, self.continuous_size), dtype=np.float32)
+            _discrete = np.zeros((n_agents, self.discrete_size), dtype=np.int32)
+            actions = ActionTuple(continuous=_continuous, discrete=_discrete)
+        
+>>>>>>> tmp
         if actions.continuous.shape != _expected_shape:
             raise UnityActionException(
                 f"The behavior {name} needs a continuous input of dimension "
