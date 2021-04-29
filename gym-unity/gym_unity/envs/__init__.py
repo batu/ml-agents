@@ -211,12 +211,7 @@ class UnityToMultiGymWrapper(gym.Env):
 
         decision_step, terminal_step = self._env.get_steps(self.name)
 
-        try:
-            return self.combine_steps(decision_step, terminal_step)
-        except KeyError:
-            self.key_error_counter += 1
-            # print(f"{self.key_error_counter}th KeyError in UnityToMultiGymWrapper. Previous step returned.")
-            return self.last_stepreturn
+        return self.combine_steps(decision_step, terminal_step)
         
 
     def combine_steps(self, decision_steps:DecisionSteps, terminal_steps:TerminalSteps):
@@ -226,21 +221,31 @@ class UnityToMultiGymWrapper(gym.Env):
         dones = [None] * self.num_agents
         infos = [{}] * self.num_agents
 
-        agentid_to_dictindex = decision_steps.agent_id_to_index
-        for agent_id, key in agentid_to_dictindex.items():
-            step = decision_steps[key]
+        # if len(decision_steps) + len(terminal_steps) != self.num_agents:
+        #     print(len(decision_steps) + len(terminal_steps))
 
-            obs[agent_id] = step.obs
-            rews[agent_id] = step.reward
-            dones[agent_id] = False
+        for agent_id in range(self.num_agents):
+            if agent_id in decision_steps:
+                step = decision_steps[agent_id]
 
-        agentid_to_dictindex = terminal_steps.agent_id_to_index
-        for agent_id, key in agentid_to_dictindex.items():
-            step = decision_steps[key]
+                obs[agent_id] = step.obs
+                rews[agent_id] = step.reward
+                dones[agent_id] = False
+            else:
+                self.key_error_counter += 1
+                if self.key_error_counter % 10 == 0:
+                    print(f"{self.key_error_counter}th KeyError in UnityToMultiGymWrapper. Previous step returned.")
 
-            obs[agent_id] = step.obs
-            rews[agent_id] = step.reward
-            dones[agent_id] = True
+                obs[agent_id] = self.last_stepreturn[0][agent_id]
+                rews[agent_id] = self.last_stepreturn[1][agent_id]
+                dones[agent_id] = self.last_stepreturn[2][agent_id]
+
+        for agent_id in range(self.num_agents):
+            if agent_id in terminal_steps:
+                step = terminal_steps[agent_id]
+                obs[agent_id] = step.obs
+                rews[agent_id] = step.reward
+                dones[agent_id] = True
 
         self.last_stepreturn = (np.squeeze(np.array(obs)),
                                 np.squeeze(np.array(rews)),

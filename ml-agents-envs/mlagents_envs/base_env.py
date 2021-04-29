@@ -422,7 +422,7 @@ class ActionSpec(NamedTuple):
             else (self.continuous_size,)
         )
         if n_agents == 0:
-            # print(f"Passed an empty action in _validate_action in base_env.py in mlagents_envs.")
+            print(f"Passed an empty action in _validate_action in base_env.py in mlagents_envs.")
             _continuous = np.zeros((n_agents, self.continuous_size), dtype=np.float32)
             _discrete = np.zeros((n_agents, self.discrete_size), dtype=np.int32)
             actions = ActionTuple(continuous=_continuous, discrete=_discrete)
