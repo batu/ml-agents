@@ -173,7 +173,7 @@ class UnityToMultiGymWrapper(gym.Env):
         self._check_agents(n_agents)
         self.game_over = False
 
-        obs = [None] * self.num_agents
+        obs = [list() for _ in range(self.num_agents)]
         agentid_to_dictindex = decision_step.agent_id_to_index
         for agent_id, key in agentid_to_dictindex.items():
             step = decision_step[key]
@@ -216,10 +216,10 @@ class UnityToMultiGymWrapper(gym.Env):
 
     def combine_steps(self, decision_steps:DecisionSteps, terminal_steps:TerminalSteps):
 
-        obs = [None] * self.num_agents
-        rews = [None] * self.num_agents
-        dones = [None] * self.num_agents
-        infos = [{}] * self.num_agents
+        obs = [None for _ in range(self.num_agents)] 
+        rews = [None for _ in range(self.num_agents)] 
+        dones = [None for _ in range(self.num_agents)] 
+        infos = [{} for _ in range(self.num_agents)]
 
         # if len(decision_steps) + len(terminal_steps) != self.num_agents:
         #     print(len(decision_steps) + len(terminal_steps))
@@ -233,7 +233,7 @@ class UnityToMultiGymWrapper(gym.Env):
                 dones[agent_id] = False
             else:
                 self.key_error_counter += 1
-                if self.key_error_counter % 10 == 0:
+                if self.key_error_counter % 1 == 0:
                     print(f"{self.key_error_counter}th KeyError in UnityToMultiGymWrapper. Previous step returned.")
 
                 obs[agent_id] = self.last_stepreturn[0][agent_id]
@@ -247,6 +247,8 @@ class UnityToMultiGymWrapper(gym.Env):
                 rews[agent_id] = step.reward
                 dones[agent_id] = True
 
+
+        # print(np.squeeze(np.array(obs))[:,0])
         self.last_stepreturn = (np.squeeze(np.array(obs)),
                                 np.squeeze(np.array(rews)),
                                 np.squeeze(np.array(dones)),
